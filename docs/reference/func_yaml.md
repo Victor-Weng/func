@@ -19,7 +19,7 @@ The following fields are used in `func.yaml`.
 ### `builderImages`
 
 Defines the builder images to use by builder implementations in lieu of the defaults.
-They key is the builder's short name.  For example:
+They key is the builder's short name. For example:
 
 ```
 builderImages:
@@ -44,30 +44,34 @@ git:
   contextDir: subdirectory
 ```
 
-### `buildEnvs`
+### `envs`
+
 This field allows you to set environment variables available to the builder/buildpack that builds the function. This environment variable is NOT set at runtime, use [envs](#envs) instead
+
 1. Environment variable can be set directly from a value
 2. Environment variable can be set from a local environment value. Eg. `'{{ env:LOCAL_ENV_VALUE }}'`, for more details see [Local Environment Variables section](#local-environment-variables).
 
 ```yaml
-buildEnvs:
-- name: EXAMPLE1                            # (1) env variable directly from a value
-  value: value
-- name: EXAMPLE2                            # (2) env variable from a local environment value
-  value: '{{ env:LOCAL_ENV_VALUE }}'
+envs:
+  - name: EXAMPLE1 # (1) env variable directly from a value
+    value: value
+  - name: EXAMPLE2 # (2) env variable from a local environment value
+    value: "{{ env:LOCAL_ENV_VALUE }}"
 ```
 
 For example, the below `func.yaml` snippet modifies the default Golang buildpack to build source code with 1.15 compiler version. Refer to respective buildpack documentation to know more about environment variables that modify behavior of the `func build`.
+
 ```yaml
-buildEnvs:
-- name: BP_GO_VERSION
-  value: '1.15'
+envs:
+  - name: BP_GO_VERSION
+    value: "1.15"
 ```
 
 ### `envs`
 
 The `envs` field allows you to set environment variables that will be
-available to your function at runtime. 
+available to your function at runtime.
+
 1. Environment variable can be set directly from a value
 2. Environment variable can be set from a local environment value. Eg. `'{{ env:LOCAL_ENV_VALUE }}'`, for more details see [Local Environment Variables section](#local-environment-variables).
 3. Environment variable can be set from a key in a Kubernetes Secret or ConfigMap. This Secret/ConfigMap needs to be created before it is referenced in a function. Eg. `'{{ secret:mysecret:key }}'` where `mysecret` is the name of the Secret and `key` is the referenced key; or `{{ configMap:myconfigmap:key }}` where `myconfigmap` is the name of the ConfigMap and `key` is the referenced key.
@@ -75,16 +79,16 @@ available to your function at runtime.
 
 ```yaml
 envs:
-- name: EXAMPLE1                            # (1) env variable directly from a value
-  value: value
-- name: EXAMPLE2                            # (2) env variable from a local environment value
-  value: '{{ env:LOCAL_ENV_VALUE }}'
-- name: EXAMPLE3                            # (3) env variable from a key in Secret
-  value: '{{ secret:mysecret:key }}'
-- name: EXAMPLE4                            # (3) env variable from a key in ConfigMap
-  value: '{{ configMap:myconfigmap:key }}'
-- value: '{{ secret:mysecret2 }}'           # (4) all key-value pairs in Secret as env variables
-- value: '{{ configMap:myconfigmap2 }}'     # (4) all key-value pairs in ConfigMap as env variables
+  - name: EXAMPLE1 # (1) env variable directly from a value
+    value: value
+  - name: EXAMPLE2 # (2) env variable from a local environment value
+    value: "{{ env:LOCAL_ENV_VALUE }}"
+  - name: EXAMPLE3 # (3) env variable from a key in Secret
+    value: "{{ secret:mysecret:key }}"
+  - name: EXAMPLE4 # (3) env variable from a key in ConfigMap
+    value: "{{ configMap:myconfigmap:key }}"
+  - value: "{{ secret:mysecret2 }}" # (4) all key-value pairs in Secret as env variables
+  - value: "{{ configMap:myconfigmap2 }}" # (4) all key-value pairs in ConfigMap as env variables
 ```
 
 ### `image`
@@ -105,10 +109,10 @@ directly from a value or from a local environment value. Eg. `'{{ env:USER }}'`,
 
 ```yaml
 labels:
-- key: role                                # (1) label directly from a value
-  value: backend
-- key: author                              # (2) label from a local environment value
-  value: '{{ env:USER }}'
+  - key: role # (1) label directly from a value
+    value: backend
+  - key: author # (2) label from a local environment value
+    value: "{{ env:USER }}"
 ```
 
 ### `name`
@@ -121,7 +125,6 @@ subsequent deployments.
 
 The Kubernetes namespace where your function will be deployed.
 
-
 ### `serviceAccountName`
 
 The name of the service account used for the function pod. The service account
@@ -130,7 +133,9 @@ must exist in the namespace to succeed.
 More info: https://k8s.io/docs/tasks/configure-pod-container/configure-service-account
 
 ### `options`
-Options allows you to set specific configuration for the deployed function, allowing you to tweak Knative Service options related to autoscaling and other properties. If these options are not set, the Knative defaults will be used. 
+
+Options allows you to set specific configuration for the deployed function, allowing you to tweak Knative Service options related to autoscaling and other properties. If these options are not set, the Knative defaults will be used.
+
 - `scale`
   - `min`: Minimum number of replicas. Must me non-negative integer, default is 0. See related [Knative docs](https://knative.dev/docs/serving/autoscaling/scale-bounds/#lower-bound).
   - `max`: Maximum number of replicas. Must me non-negative integer, default is 0 - meaning no limit. See related [Knative docs](https://knative.dev/docs/serving/autoscaling/scale-bounds/#upper-bound).
@@ -138,10 +143,10 @@ Options allows you to set specific configuration for the deployed function, allo
   - `target`: Recommendation for when to scale up based on the concurrent number of incoming request. Defaults to `options.resources.limits.concurrency` when given. Can be float value greater than 0.01, default is 100. See related [Knative docs](https://knative.dev/docs/serving/autoscaling/concurrency/#soft-limit).
   - `utilization`: Percentage of concurrent requests utilization before scaling up. Can be float value between 1 and 100, default is 70. See related [Knative docs](https://knative.dev/docs/serving/autoscaling/concurrency/#target-utilization).
 - `resources`
-  - `requests` 
+  - `requests`
     - `cpu`: A CPU resource request for the container with deployed function. See related [Kubernetes docs](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#requests-and-limits).
     - `memory`: A memory resource request for the container with deployed function. See related [Kubernetes docs](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#requests-and-limits).
-  - `limits` 
+  - `limits`
     - `cpu`: A CPU resource limit for the container with deployed function. See related [Kubernetes docs](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#requests-and-limits).
     - `memory`: A memory resource limit for the container with deployed function. See related [Kubernetes docs](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#requests-and-limits).
     - `concurrency`: Hard Limit of concurrent requests to be processed by a single replica. Can be integer value greater than or equal to 0, default is 0 - meaning no limit. See related [Knative docs](https://knative.dev/docs/serving/autoscaling/concurrency/#hard-limit).
@@ -175,16 +180,16 @@ your function. For example `http` for plain HTTP requests, `event` for
 CloudEvent triggered functions.
 
 ### `volumes`
+
 Kubernetes Secrets or ConfigMaps can be mounted to the function as a Kubernetes Volume accessible under specified path. Below you can see an example how to mount the Secret `mysecret` to the path `/workspace/secret` and the ConfigMap `myconfigmap` to the path `/workspace/configmap`. This Secret/ConfigMap needs to be created before it is referenced in a function.
 
 ```yaml
 volumes:
-- secret: mysecret
-  path: /workspace/secret
-- configMap: myconfigmap
-  path: /workspace/configmap
+  - secret: mysecret
+    path: /workspace/secret
+  - configMap: myconfigmap
+    path: /workspace/configmap
 ```
-
 
 ## Local Environment Variables
 
@@ -197,6 +202,6 @@ the name with `env:`. For example:
 
 ```yaml
 envs:
-- name: API_KEY
-  value: '{{ env:API_KEY }}'
+  - name: API_KEY
+    value: "{{ env:API_KEY }}"
 ```
